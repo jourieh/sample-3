@@ -28,8 +28,40 @@ const express = require("express");
         res.render("Text processing")
     });
 
-    app.post('/',(req, res) => {
+    app.post('/new',(req, res) => {
         var txt = String(req.body.txt);
+        var Character_type1 = ""
+        var Character_type2 = ""
+        var new_line = ""
+
+        if (txt.search('\n') > -1) {
+            new_line = "改行があります。"
+        }
+        else{
+            new_line = "改行がありません。"
+        }
+
+        if (txt.match(/^[^\x01-\x7E\uFF61-\uFF9F]+$/)) {    
+            Character_type2 = "全角文字です"
+            txt = Zenkaku2hankaku(txt)
+        } else {
+            Character_type2 = "半角文字です"
+        }
+        
+        if (isNaN(txt) == true) {
+            Character_type1 = "文字列"
+        }
+        else{
+            Character_type1 = "数値"
+        }
+        
+
+        function Zenkaku2hankaku(str) {
+            return str.replace(/[０-９]/g, function(s) {
+                return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+            });
+        }
+        
 
         const encoding = require('encoding-japanese');
 
@@ -40,10 +72,8 @@ const express = require("express");
             from: 'EUC'
         });
 
-        console.log(Msg_Code);
-        console.log(New_Msg_Code);
+        res.render("encoding",{New_txt:New_Msg_Code,code:Msg_Code,new_line:new_line,Character_type1:Character_type1,Character_type2:Character_type2})
     
-        res.render("Text processing")
     })
 
 
